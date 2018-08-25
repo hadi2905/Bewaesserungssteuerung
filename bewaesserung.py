@@ -8,7 +8,7 @@
     Kriterien: Boden trocken, Boden seit X Tagen trocken, Letzte Bewässerung vor Y Tagen
  
  Ermöglicht ein regelmäßiges Starten des Raspi per externer Uhr (RTC SD3231)
- Um den Ablauf zu unterbrechen kann Pin 40 auf Masse gelegt werden.
+ Um den Ablauf zu unterbrechen kann Pin 40 auf Masse gelegt werden bzw. es steht ein WLAN-Hotspot namens [MOBILER_HOTSPOT] zur Verfügung.
  Andernfalls führt das Programm einen Shutdown durch nachdem der Alarm auf
  den nächsten Zeitpunkt fortgeschrieben wurde
       
