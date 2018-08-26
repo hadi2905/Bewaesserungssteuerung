@@ -92,6 +92,11 @@ def bewaesserungsablauf(rtClock, mcp, cfgData, data, dt):
     
     
 def main():
+    """
+    Initialisiert die Verbindngen zur RTC und den angeschlossenen Sensoren
+    Prüft ob die Verzögerungs-Pin auf Masse legt bzw. ein bekannter Hotspot erreichbar ist.
+    Falls ja, wird der normale Zyklus nicht ausgeführt und der Shutdown um 5 Minuten verzögert
+    """
     try:
         # Den Analog-Digital-Konverter MCP3008 und die RTC und initialisieren
         mcp = rlib.get_mcp()
