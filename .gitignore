@@ -1,1 +1,4 @@
 .directory
+__pycache__
+*.json
+*.log

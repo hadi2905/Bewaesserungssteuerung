@@ -1,24 +1,19 @@
 # -*- coding: utf-8 -*-
-import json
-import logging
-from pathlib import Path
-
-
 """
     Logik Modul für Bewässerungssteuerung
-    
-
+    Enthält Funktionalität die keine Raspi-spezifischen Elemente (GPIO, Adafruit, Realtime Clock) benötigt
 """
+import json
+import logging
 
 
 def read_json_cfg():
     """
-    In JSON codierte Konfigurationsdatei einlesen
+    In JSON codierte Konfigurationsdatei /home/pi/data/bewaesserung.cfg einlesen
+    Falls Datei noch nicht existiert, beginnen wir mit Defaultwerten
     """
-    # Falls Datei bewaesserung.cfg noch nicht existiert, beginnen wir mit Defaultwerten
     try:
-        home = str(Path.home())
-        fJson = open(home + "/data/bewaesserung.cfg", "r")
+        fJson = open("/home/pi/data/bewaesserung.cfg", "r")
         data = json.load(fJson)
         fJson.close()
     except FileNotFoundError:
@@ -38,8 +33,7 @@ def read_json_data(cfgData):
     """
     # Falls Datei bewaesserung.json noch nicht existiert, beginnen wir mit einer leeren Datenstruktur
     try:
-        home = str(Path.home())
-        fJson = open(home + "/data/" + cfgData['Messwerte_Datei'], "r")
+        fJson = open("/home/pi/data/" + cfgData['Messwerte_Datei'], "r")
         data = json.load(fJson)
         fJson.close()
     except FileNotFoundError:
@@ -49,14 +43,15 @@ def read_json_data(cfgData):
 
 
 def save_json(cfgData, data):
-        home = str(Path.home())
+    """
+    In JSON codierte Konfigurations- und Messdatendatei schreiben
+    """
+    fJson = open("/home/pi/data/" + cfgData['Messwerte_Datei'], "w")
+    json.dump(data, fJson)
+    fJson.close()
 
-        fJson = open(home + "/data/" + cfgData['Messwerte_Datei'], "w")
-        json.dump(data, fJson)
-        fJson.close()
-
-        fJson = open(home + "/data/bewaesserung.cfg", "w")
-        json.dump(cfgData, fJson)
-        fJson.close()
+    fJson = open("/home/pi/data/bewaesserung.cfg", "w")
+    json.dump(cfgData, fJson)
+    fJson.close()
         
     
