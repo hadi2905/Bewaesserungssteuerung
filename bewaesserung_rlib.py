@@ -1,6 +1,3 @@
-"""
-Library mit den für die Sensoren und andere Peripheriegeräte benötigten Funktionen
-"""
 import subprocess as sp
 import time
 import datetime as dt
@@ -45,11 +42,6 @@ def set_gpio_settings():
 
 
 def temp_und_luftfeuchtigkeit_messen():
-    """
-    Misst Lufttemperatur und relative Feuchtigkeit. Berechnet daraus die absolute Luftfeuchtigkeit und gibt alle drei Werte in einer Liste zurück.
-    Parameter
-        Kein Parameter
-    """
     sensor = ada.DHT22
 
     # Da beim Auslesen die letzte Messung, die schon einige Zeit zurückliegen kann, abgerufen wird, fragen wir 2 mal in kurzem Abstand
@@ -73,12 +65,6 @@ def temp_und_luftfeuchtigkeit_messen():
         return (round(t,1), round(h, 1), round(h_abs, 1))
             
 def bodenfeuchtigkeit_messen(mcp):
-    """
-    Misst die Bodenfeuchtigkeit an den beiden angeschlossenen Sensoren
-
-    Parameter:
-        mcp: Instanz des Analog-Digital-Konverters MCP3008 (siehe Funktion get_mcp())
-    """
     GPIO.output(PIN_VCC_MESS, 1)
     time.sleep(0.5)
     v1 = mcp.read_adc(MCP_KANAL_BODEN1)
@@ -88,12 +74,7 @@ def bodenfeuchtigkeit_messen(mcp):
     return (v1,v2)
 
 def batteriespannung_messen(mcp):
-    """
-    Misst die Autobatterie über einen Spannungsteiler an Kanal 7 
-
-    Parameter:
-        mcp: Instanz des Analog-Digital-Konverters MCP3008 (siehe Funktion get_mcp())
-    """
+    # Die Autobatterie wird über einen Spannungsteiler an Kanal 7 gemessen
     time.sleep(0.5)
     u = float(mcp.read_adc(MCP_KANAL_BAT)/20)
     logger.debug("1. Messung u_bat={}".format(u)) 
@@ -105,15 +86,6 @@ def batteriespannung_messen(mcp):
     
     
 def sensordaten_auslesen(rtClock, mcp, data):
-    """
-    Misst in einem Aufruf die Batteriespannung, Lufttemperatur- und Feuchtigkeit, sowie die Bodenfeuchtigkeit
-    Die Daten werden in einem Tupel erfasst und an das JSON-Datenobjekt angehängt
-    
-    Parameter:
-        rtClock:    Instanz der RTC-Klasse
-        mcp:        Instanz des Analog-Digital-Konverters MCP3008 (siehe Funktion get_mcp())
-        data:       Das JSON-Datenobjekt
-    """
     logger.info("Sensoren auslesen")
     u_bat=batteriespannung_messen(mcp)
     klima = temp_und_luftfeuchtigkeit_messen()
@@ -124,9 +96,6 @@ def sensordaten_auslesen(rtClock, mcp, data):
 def sensordaten_auslesen2():
     """
     Diese Funktion kann genutzt werden um die Sensoren abzurufen wenn das Modul bewaesserung.py per import in eine Python-Session eingebunden wird
-    
-    Parameter:
-        keine
     """
     data = []
     set_gpio_settings()
@@ -160,14 +129,11 @@ def naechsten_start_bestimmen(rtClock):
 """
 
 def naechsten_start_bestimmen(rtClock):
-    """
-    Bestimmt den nächsten Startzeitpunkt des Raspi und setzt den Alarm der Realtime Clock entsprechend.
-    Der nächste Startzeitpunkt wird mit Hilfe des Dictionary crontab bestimmt. Die aktuelle Stunde wird als Key genommen um die Stunde für den nächsten Start zu bestimmen
-    
-    Parameter:
-        rtClock:    Instanz der RTC-Klasse
-    """
-    crontab = {0:1,1:3,2:3,3:5,4:5,5:7,6:7,7:9,8:9,9:11,10:11,11:13,12:13,13:15,14:15,15:17,16:17,17:19,18:19,19:21,20:21,21:23,22:23,23:1}
+    #
+    # Der nächste Startzeitpunkt wird mit Hilfe des Dictionary crontab bestimmt. Die aktuelle Stunde wird als Key genommen um die Stunde für den 
+    # nächsten Start zu bestimmen
+    #
+    crontab = {0:3,1:3,2:3,3:6,4:6,5:6,6:9,7:9,8:9,9:12,10:12,11:12,12:14,13:14,14:17,15:17,16:17,17:19,18:19,19:21,20:21,21:23,22:23,23:3}
     
     d = rtClock.read_datetime()
     nextHour = crontab[d.hour]
@@ -181,12 +147,6 @@ def naechsten_start_bestimmen(rtClock):
     
  
 def json_einlesen(data):
-    """
-    Hilfsfunktion zur Bildschirmausgabe von Daten aus dem JSON-Datenobjekt
-    
-    Parameter:
-        data:   Das JSON-Datenobjekt
-    """
     for i in range(len(data)):
         zeit = dt.datetime.strptime(data[i][0], "%Y-%m-%dT%H:%M:%S.%f")
         wert = data[i][3]
@@ -198,9 +158,6 @@ def check_hotspot(spotName):
     Prüft ob der Raspi mit dem Hotspot 'MOBSPOT' verbunden ist
     In diesem Fall findet sich der Name des Hotspot im vierten Listenelement der Rückgabe von iwconfig: b'ESSID:"MOBSPOT"'
     Falls keine WLAN-Verbindung existiert, steht da b'ESSID:off/any'
-    
-    Parameter:
-        spotName:   Name des gesuchten Hotspot
     """
     pr = sp.run(["sudo","iwconfig"], stdout=sp.PIPE, stderr=sp.DEVNULL)
     for i in range(6):
@@ -213,19 +170,13 @@ def check_hotspot(spotName):
 
 def get_mcp():
     """
-    Gibt die Instanz eines MCP-Objekts (Analog-Digital-Konverter MCP3008) zurück
-    
-    Parameter:
-        keine
+    Instanziiert ein MCP-Objekt (Analog-Digital-Konverter)
     """
     return Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
     
 def get_rtClock():
     """
-    Gibt die Instanz eines Real Time Clock Objekts zurück
-    
-    Parameter:
-        keine
+    Instanziiert ein Real Time Clock Objekt
     """
     return rtc.SDL_DS3231()
 
